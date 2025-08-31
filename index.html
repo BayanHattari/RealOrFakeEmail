@@ -35,7 +35,7 @@
       display:block; margin:30px auto; padding:15px 60px; font-size:20px; font-weight:bold; border-radius:30px;
       background:#0b4550; color:#fff; cursor:pointer; transition:0.3s;
     }
-    .start-btn, .fake, .real{ font-family:'Grant','Garet',sans-serif; }
+    .start-btn, .fake, .real, .check-btn{ font-family:'Grant','Garet',sans-serif; }
     #errorFinderPage .email-header.ltr{ text-align:left; color:#fcfcfc; font-weight:normal; margin-bottom:8px; }
     #errorFinderPage .email-body.ltr{ text-align:left; color:#fcfcfc; line-height:1.5; }
     .start-btn:hover{ background:#042e36; }
@@ -49,7 +49,7 @@
     .check-btn:hover{ background:#042e36; }
     .play-title{ text-align:center; font-size:25px; font-weight:bold; margin-bottom:25px; margin-top:50px; }
     .instructions li{ font-size:17px; margin-bottom:15px; }
-    .excite{ font-size:20px; font-weight:bold; margin-top:20px; margin-bottom:30px; margin-right:23px; color:#fff; }
+    .excite{ font-size:20px; font-weight:bold; margin:20px 0 30px; color:#fff; text-align:center; }
     .progress{ text-align:center; margin:8px 0 6px; color:#fcfbfb; font-weight:bold; }
     .result-card{
       background:#357783; border-radius:15px; box-shadow:0 6px 15px rgba(0,0,0,0.1);
@@ -64,7 +64,7 @@
     .info span{ display:block; font-size:18px; font-weight:bold; }
     .btn{ display:inline-block; padding:12px 25px; border-radius:30px; background:#0b4550; color:#fff; font-size:16px; cursor:pointer; transition:0.3s; text-decoration:none; }
     .btn:hover{ opacity:.85; background:#042e36; }
-    .victory .title{ color:#77c9b6; } .failure .title{ color:#dc3545; }
+    .victory .title{ color:#77c9ب6; } .failure .title{ color:#dc3545; }
     #resultPage{ direction:ltr; text-align:left; }
     #resultPage .result-card{ align-items:center; }
   </style>
@@ -75,14 +75,14 @@
     <div class="card">
       <img src="Screenshot_2025-08-29_144629-removebg-preview.png" alt="TechHub Logo" class="logo-left"/>
       <img src="logo_tech_hub_real_or_fake-removebg-preview.png" alt="FCIT Logo" class="logo-right"/>
-      <p class="play-title">طريقة اللعب :</p>
+      <p class="play-title">طريقة اللعب:</p>
       <ul class="instructions">
         <li><b>ستظهر لك رسالة بريد إلكتروني.</b></li>
-        <li><b>قرر هل هي Real أم Fake</b></li>
-        <li><b>إذا كانت Fake اختر الأخطاء الثلاثة بالضغط عليها.</b></li>
-        <li><b>كل خطأ يتم تمييزه تلقائيًا.</b></li>
+        <li><b>قرّر هل الرسالة حقيقية أم مزيفة.</b></li>
+        <li><b>إذا كانت مزيفة، اختر الأخطاء الثلاثة بالنقر عليها.</b></li>
+        <li><b>سيتم تمييز كل خطأ تلقائيًا.</b></li>
       </ul>
-      <p class="excite">انقر ابدأ للبدء واختبار مهاراتك ✨</p>
+      <p class="excite">✨ انقر ابدأ للبدء واختبار مهاراتك ✨</p>
       <button class="start-btn" onclick="goToEmail()">ابدأ</button>
     </div>
   </div>
