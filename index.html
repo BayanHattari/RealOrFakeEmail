@@ -35,13 +35,14 @@
       display:block; margin:30px auto; padding:15px 60px; font-size:20px; font-weight:bold; border-radius:30px;
       background:#0b4550; color:#fff; cursor:pointer; transition:0.3s;
     }
+    .start-btn, .fake, .real{ font-family:'Grant','Garet',sans-serif; }
     #errorFinderPage .email-header.ltr{ text-align:left; color:#fcfcfc; font-weight:normal; margin-bottom:8px; }
     #errorFinderPage .email-body.ltr{ text-align:left; color:#fcfcfc; line-height:1.5; }
     .start-btn:hover{ background:#042e36; }
     .fake{ background:#155a66; color:#fff; } .fake:hover{ background:#09444e; }
     .real{ background:#5b9ba9; color:#fff; } .real:hover{ background:#4a8694; }
     .result{ text-align:center; font-size:18px; font-weight:bold; margin-top:20px; }
-    .clickable{ background:none;  }
+    .clickable{ background:none; }
     .highlight{ background-color:#155a66; }
     #resultMsg{ text-align:center; font-weight:bold; font-size:18px; }
     .check-btn{ display:block; margin:20px auto; padding:12px 25px; border:none; border-radius:30px; font-size:16px; background:#0b4550; color:#fff; cursor:pointer; transition:0.3s; }
@@ -56,6 +57,7 @@
       font-family:'Grant','Garet',sans-serif; color:#fbf9f9; display:flex; flex-direction:column; align-items:center; text-align:center; gap:15px;
     }
     .result-card img{ width:120px; margin-bottom:15px; }
+    .main-icon{ margin-top:18px; }
     .title{ font-size:30px; font-weight:bold; }
     .info{ display:flex; justify-content:space-around; }
     .info div{ text-align:center; }
@@ -118,7 +120,7 @@
     <div class="result-card" id="resultCard">
       <img src="Screenshot_2025-08-29_144629-removebg-preview.png" class="logo-left"/>
       <img src="logo_tech_hub_real_or_fake-removebg-preview.png" class="logo-right"/>
-      <img src="https://cdn.pixabay.com/photo/2021/04/27/21/30/trophy-6212557_960_720.png"/>
+      <img src="https://cdn.pixabay.com/photo/2021/04/27/21/30/trophy-6212557_960_720.png" class="main-icon"/>
       <div class="title">Victory!</div>
       <p>You got "" out of 5 correct!</p>
       <div class="info"><div><span>Golden Medal</span>Achievement</div></div>
@@ -127,12 +129,11 @@
   </div>
 
   <script>
-    /* Google Sheets Config */
     const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyPnKGg9_-4YYaxkQDiljI7tQ3dGD1iYBBxiiQRjp9w9tj9ty5IcBtNRMYAF6GuKevwug/exec';
     const GAME_VERSION = 'phishing-v1';
     const VICTORY_THRESHOLD = 3;
 
-    let fakeCorrect = 0;    // كم رسالة مزيفة اكتشف اللاعب فيها 3/3 أخطاء
+    let fakeCorrect = 0;
     let sessionId   = cryptoRandomId();
 
     function cryptoRandomId(){
@@ -151,7 +152,6 @@
       }
     }
 
-    /* اللعبة */
     const EMAIL_POOL = [
       { from:"support@micros0ft.com", subject:"Account Review Required", content:"Hello David, please review your account security by visiting http://micros0ft.secure-login.com. Your account will be restricted soon.", type:"مزيفة", Flags:["micros0ft.com","http://micros0ft.secure-login.com","restricted soon"] },
       { from:"linda.smith@gmail.com", subject:"Weekend Plans", content:"Are we still on for hiking this Saturday?", type:"حقيقية" },
@@ -172,6 +172,12 @@
 
     let selectedEmails = [];
     let currentEmailIndex = 0, score = 0, currentEmail = null, selectedErrors = new Set();
+    let answering = false;
+    let errorLocked = false;
+
+    function setAnswerButtonsDisabled(disabled){
+      document.querySelectorAll('#emailPage .buttons button').forEach(b=>b.disabled = disabled);
+    }
 
     function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
     function pickFiveRandom(){ const copy = EMAIL_POOL.slice(); shuffle(copy); return copy.slice(0,5); }
@@ -198,26 +204,31 @@
       document.getElementById("emailHeader").innerText = `From: ${currentEmail.from}\n\nSubject: ${currentEmail.subject}\n\n`;
       document.getElementById("emailBody").innerText = currentEmail.content;
       document.getElementById("result").innerText = "";
+      answering = false;
+      setAnswerButtonsDisabled(false);
     }
 
-   function checkAnswer(answer) {
-    if (answer === currentEmail.type) {
-        score += 1;
+    function checkAnswer(answer) {
+      if (answering) return;
+      answering = true;
+      setAnswerButtonsDisabled(true);
 
+      if (answer === currentEmail.type) {
+        score += 1;
         if (answer === 'مزيفة') {
-            goToErrorFinder();
-            return;
+          goToErrorFinder();
+          return;
         }
         document.getElementById("result").style.color = "#77c9b6";
         document.getElementById("result").innerText = "✅ صحيح! هذه الرسالة " + currentEmail.type.toUpperCase();
-    } else {
+      } else {
         document.getElementById("result").style.color = "red";
         document.getElementById("result").innerText = "❌ خطأ! هذه الرسالة " + currentEmail.type.toUpperCase();
-    }
+      }
 
-    currentEmailIndex++;
-    setTimeout(loadEmail, 1500);
-}
+      currentEmailIndex++;
+      setTimeout(loadEmail, 1500);
+    }
 
     function goToErrorFinder(){
       showPage("errorFinderPage");
@@ -230,6 +241,7 @@
       `;
       selectedErrors.clear();
       document.getElementById("resultMsg").innerText = "";
+      errorLocked = false;
     }
 
     function makeClickable(text){
@@ -249,11 +261,13 @@
     }
 
     function checkAnswers(){
+      if (errorLocked) return;
       const result = document.getElementById("resultMsg");
       if(selectedErrors.size === 3){
         result.innerHTML = "👏 ممتاز. اكتشفت كل الأخطاء.";
         result.style.color = "#77c9b6";
-        fakeCorrect += 1; 
+        fakeCorrect += 1;
+        errorLocked = true;
         setTimeout(()=>{
           currentEmailIndex++;
           showPage("emailPage");
@@ -279,7 +293,6 @@
       const wins  = isVictory ? 1 : 0;
       const losses = isVictory ? 0 : 1;
 
-     
       sendStatsToSheet({
         player: '',
         correct, total, accuracy, wins, losses,
@@ -295,7 +308,7 @@
         card.innerHTML = `
           <img src="Screenshot_2025-08-29_144629-removebg-preview.png" class="logo-left"/>
           <img src="logo_tech_hub_real_or_fake-removebg-preview.png" class="logo-right"/>
-          <img src="https://cdn.pixabay.com/photo/2021/04/27/21/30/trophy-6212557_960_720.png"/>
+          <img src="https://cdn.pixabay.com/photo/2021/04/27/21/30/trophy-6212557_960_720.png" class="main-icon"/>
           <div class="title">! نجحت</div>
           <p>🎉 حصلت على ${correct} من أصل ${total} إجابات صحيحة</p>
           <div class="info"><div><span>👏 أحسنت</span></div></div>
@@ -306,7 +319,7 @@
         card.innerHTML = `
           <img src="Screenshot_2025-08-29_144629-removebg-preview.png" class="logo-left"/>
           <img src="logo_tech_hub_real_or_fake-removebg-preview.png" class="logo-right"/>
-          <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png"/>
+          <img src="https://cdn-icons-png.flaticon.com/512/564/564619.png" class="main-icon"/>
           <div class="title">فشلت</div>
           <p>حصلت على ${correct} من أصل ${total} إجابات صحيحة</p>
           <div class="info"><div><span>حظًا أوفر</span></div></div>
